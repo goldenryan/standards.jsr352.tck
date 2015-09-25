@@ -32,6 +32,7 @@ import javax.batch.runtime.context.StepContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.ibm.jbatch.tck.artifacts.specialized.ParrallelContextPropagationArtifacts;
 import com.ibm.jbatch.tck.utils.JobOperatorBridge;
 import static org.junit.Assert.assertEquals;
 
@@ -151,104 +152,5 @@ public class ParallelContextPropagationTest {
 	 * Test artifacts below
 	 *
 	 */
-	public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 	
-	@Named("ParallelContextPropagationTestSFB")
-	public static class SFB extends AbstractBatchlet {
-
-		@Inject JobContext jobCtx;  @Inject StepContext stepCtx;
-
-		@Override
-		public String process() throws Exception {
-
-			// Check job properties
-			/*
-			 * <property name="topLevelJobProperty" value="topLevelJobProperty.value" />
-			 */
-			String propVal = jobCtx.getProperties().getProperty("topLevelJobProperty");
-			String expectedPropVal = "topLevelJobProperty.value";
-
-			if (propVal == null || (!propVal.equals(expectedPropVal))) {
-				throw new Exception("Expected propVal of " + expectedPropVal + ", but found: " + propVal);
-			}
-
-			// Check job name
-			String jobName = jobCtx.getJobName();
-			String expectedJobName = "splitFlowCtxPropagation";
-			if (!jobName.equals(expectedJobName)) {
-				throw new Exception("Expected jobName of " + expectedJobName + ", but found: " + jobName);
-			}
-
-			String data = stepExitStatus();
-			stepCtx.setExitStatus(stepCtx.getExitStatus() + data);
-			return GOOD_EXIT_STATUS;
-		}
-
-		private String stepExitStatus() {
-			long execId = jobCtx.getExecutionId();
-			long instanceId = jobCtx.getInstanceId();
-			long stepExecId = stepCtx.getStepExecutionId();
-
-			return ":J" + execId + "I" + instanceId + "S" + stepExecId;
-		}
-	}
-
-	@Named("ParallelContextPropagationTestPB")
-	public static class PB extends AbstractBatchlet {
-
-		@Inject JobContext jobCtx; @Inject StepContext stepCtx;
-
-		@Override
-		public String process() throws Exception {
-
-			// Check job properties
-
-			/*
-			 * <property name="topLevelJobProperty" value="topLevelJobProperty.value" />
-			 */
-			String propVal = jobCtx.getProperties().getProperty("topLevelJobProperty");
-			assertEquals("Job Property comparison", "topLevelJobProperty.value", propVal);
-			
-			propVal = stepCtx.getProperties().getProperty("topLevelStepProperty");
-			assertEquals("Step Property comparison", "topLevelStepProperty.value", propVal);
-			
-			assertEquals("Job name", "partitionCtxPropagation", jobCtx.getJobName());
-
-			assertEquals("Step name", "step1", stepCtx.getStepName());
-
-			return GOOD_EXIT_STATUS;
-		}
-
-		@Override
-		public void stop() throws Exception {}
-	}
-
-	@Named("ParallelContextPropagationTestC")
-	public static class C implements PartitionCollector {
-
-		@Inject JobContext jobCtx; @Inject StepContext stepCtx;
-
-		@Override
-		public String collectPartitionData() throws Exception {
-
-			assertEquals("step name", "step1", stepCtx.getStepName());
-
-			long jobid = jobCtx.getExecutionId();
-			long instanceid = jobCtx.getInstanceId();
-			long stepid = stepCtx.getStepExecutionId();
-
-			return ":J" + jobid + "I" + instanceid + "S" + stepid;
-		}
-	}
-
-	@Named("ParallelContextPropagationTestA")
-	public static class A extends AbstractPartitionAnalyzer {
-
-		@Inject JobContext jobCtx;
-
-		@Override
-		public void analyzeCollectorData(Serializable data) throws Exception {
-			jobCtx.setExitStatus(jobCtx.getExitStatus() + data);
-		}
-	}
 }
