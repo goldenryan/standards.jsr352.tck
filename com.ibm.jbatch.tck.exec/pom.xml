@@ -86,7 +86,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            Copy since test.properties is a .gitignore entry
+                            <!--Copy since test.properties is a .gitignore entry-->
                             <target>
                                 <copy file="${project.basedir}/default.tck.exec.properties"
                                       tofile="${project.basedir}/test.properties"
