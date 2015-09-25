@@ -32,7 +32,7 @@ import javax.batch.runtime.context.StepContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.ibm.jbatch.tck.artifacts.specialized.ParrallelContextPropagationArtifacts;
+import com.ibm.jbatch.tck.artifacts.specialized.ParallelContextPropagationArtifacts;
 import com.ibm.jbatch.tck.utils.JobOperatorBridge;
 import static org.junit.Assert.assertEquals;
 

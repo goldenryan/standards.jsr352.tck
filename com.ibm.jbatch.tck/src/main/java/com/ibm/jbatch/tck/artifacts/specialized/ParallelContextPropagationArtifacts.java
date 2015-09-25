@@ -40,7 +40,7 @@ import org.junit.Ignore;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class ParrallelContextPropagationArtifacts {
+public class ParallelContextPropagationArtifacts {
 
 public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 	
