@@ -44,36 +44,36 @@ import org.testng.annotations.Test;
 
 public class ParallelContextPropagationTest {
 
-	//private static JobOperatorBridge jobOp = null;
-	private static JobOperator jobOp;
+	private static JobOperatorBridge jobOp = null;
 	private static int sleepTime = 20000;
 	
 	@BeforeMethod
 	@BeforeClass
 	public static void setup() throws Exception {
-		//jobOp = new JobOperatorBridge();
-		jobOp = BatchRuntime.getJobOperator();
+		jobOp = new JobOperatorBridge();
 	}
 
 
     /*
      * @testName: testPartitionContextPropagation
-     * @assertion:
-     * @test_Strategy: 
+     * 
+     * @assertion: Ensure that execution ID, instance ID, and step execution ID stay consistant through a fixed amount of partitions
+     * 
+     * @test_Strategy: get all id's then execute jobs while checking the initial recorded id values against the values being returned
+     * from the partitions ran
      */
 	@Test
 	@org.junit.Test
-	//@TCKCandidate("Probably a good one to add given confusion caused by Bug 5164")
 	public void testPartitionContextPropagation() throws Exception {
 		
-		long theExecId = jobOp.start("partitionCtxPropagation", null);
+		JobExecution je = jobOp.startJobAndWaitForResult("partitionCtxPropagation", null);
 		Thread.sleep(sleepTime);
 		
 		// Check job COMPLETED since some validation is crammed into the execution.
-		JobExecution je = jobOp.getJobExecution(theExecId);
 		assertEquals("Test successful completion", "COMPLETED", je.getBatchStatus().toString());
 
-		// Get the correct instance id
+		// Get the correct exec id and instance id
+		long theExecId = je.getExecutionId();
 		long theInstanceId = jobOp.getJobInstance(theExecId).getInstanceId();
 		
 		// Get the correct step execution id
@@ -110,22 +110,24 @@ public class ParallelContextPropagationTest {
 
     /*
      * @testName: testSplitFlowContextPropagation
-     * @assertion:
-     * @test_Strategy: 
+     * 
+     * @assertion: Ensure that execution ID, instance ID, and step execution ID stay consistant through splits and flows
+     * 
+     * @test_Strategy: get all id's then execute jobs while checking the initial recorded id values against the values being returned
+     * from within the split flows in the job
      */
 	@Test
 	@org.junit.Test
-	//@TCKCandidate("Probably a good one to add given confusion caused by Bug 5164")
 	public void testSplitFlowContextPropagation() throws Exception {
 
-		long theExecId = jobOp.start("splitFlowCtxPropagation", null);
+		JobExecution je = jobOp.startJobAndWaitForResult("splitFlowCtxPropagation", null);
 		Thread.sleep(sleepTime);
 
 		// Check job COMPLETED since some validation is crammed into the execution.
-		JobExecution je = jobOp.getJobExecution(theExecId);
 		assertEquals("Test successful completion", "COMPLETED", je.getBatchStatus().toString());
 
 		// Get the correct instance id
+		long theExecId = je.getExecutionId();
 		long theInstanceId = jobOp.getJobInstance(theExecId).getInstanceId();
 		
 		List<StepExecution> stepExecutions = jobOp.getStepExecutions(theExecId);
@@ -145,12 +147,4 @@ public class ParallelContextPropagationTest {
 			assertEquals("check step execution id", se.getStepExecutionId(), Long.parseLong(stepId));
 		}
 	}
-
-
-	/**
-	 * 
-	 * Test artifacts below
-	 *
-	 */
-	
 }

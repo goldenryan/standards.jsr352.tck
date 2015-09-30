@@ -1,0 +1,33 @@
+Contributers Guide:
+
+Adding artifacts to the TCK:
+
+	For the tck.exec.dist (official execution) things are referenced through the batch.xml:
+
+	-add all artifacts for a test to one class in the specialized folder.
+	-add those artifacts to the src/main/resources/META-INF/batch.xml
+	-ensure that the file above matches the file in target/generated-tck/META-INF/batch.xml
+	-run mvn clean install -DbatchXML
+
+Running debugger:
+
+	-make my.log.config.txt with
+
+	handlers = java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+	com.ibm.jbatch.container.level = FINER
+	com.ibm.jbatch.container.api.impl.level = FINE
+	com.ibm.jbatch.container.util.level = FINE
+	com.ibm.jbatch.tck.artifacts.level = FINER
+	com.ibm.jbatch.tck.polling.level=INFO
+	com.ibm.jbatch.tck.level=FINEST
+	java.util.logging.ConsoleHandler.level=ALL
+	java.util.logging.FileHandler.level=ALL
+	java.util.logging.FileHandler.count = 10
+	java.util.logging.FileHandler.pattern = tck.log.%g.txt  
+
+	-in tck.exec mvn clean install -Djava.util.logging.config.file=my.log.config.txt
+
+Running singular tests:
+
+	-for running out of tck.exec change tck.exec/testng.suite.xml
+	-for running out of standards.jsr352.tck dir change com.ibm.jbatch.tck/testng/jsr352-tck-impl-SE-suite.xml

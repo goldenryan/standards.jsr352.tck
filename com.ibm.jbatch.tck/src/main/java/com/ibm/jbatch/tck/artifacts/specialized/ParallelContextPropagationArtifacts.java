@@ -47,7 +47,8 @@ public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 	@javax.inject.Named("PCPCheckJobBatchlet")
 	public static class PCPCheckJobBatchlet extends AbstractBatchlet {
 
-		@Inject JobContext jobCtx;  @Inject StepContext stepCtx;
+		@Inject JobContext jobCtx;
+		@Inject StepContext stepCtx;
 
 		@Override
 		public String process() throws Exception {
