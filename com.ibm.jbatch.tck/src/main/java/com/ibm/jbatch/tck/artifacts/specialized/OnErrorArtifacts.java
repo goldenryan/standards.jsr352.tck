@@ -61,43 +61,30 @@ public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 
 		@Override
 		public void open(Serializable checkpoint) throws Exception {
-			for(int i=0;i<10;i++)
+			for(int i=0;i<5;i++)
 				Items.add(i);
 		}
 		
 		@Override
 		public Object readItem() throws Exception {
-			Integer res = Items.get(Items.size());
-			Items.remove(Items.size());
-			return res;
+			try{
+				Integer res = Items.get(Items.size()-1);
+				Items.remove(Items.size()-1);
+				return res;
+			}catch(Exception e){
+				throw e;
+			}
 		}
 	}
-
-	/*@javax.inject.Named("OnErrorItemWriter")
-	public static class OnErrorItemWriter extends AbstractItemWriter  {
-		@Inject JobContext jobCtx;
-		@Inject StepContext stepCtx;
-
-		@Override
-		public void open(Serializable checkpoint) throws Exception {
-		}
-
-		@Override
-		public void writeItems(List<Object> items) throws Exception {
-		}
-	}*/
 	
 	@javax.inject.Named("OnErrorItemWriteListener")
-	public class OnErrorItemWriteListener extends AbstractItemWriteListener {
+	public static class OnErrorItemWriteListener extends AbstractItemWriteListener {
 		
 		/*private final static String sourceClass = OnErrorItemWriteListener.class.getName();
 		private final static Logger logger = Logger.getLogger(sourceClass);*/
 
 		int beforecounter = 1;
 		int aftercounter = 1;
-		
-		public static final String GOOD_EXIT_STATUS = "MyItemWriteListener: GOOD STATUS";
-		public static final String BAD_EXIT_STATUS = "MyItemWriteListener: BAD STATUS";
 		
 	    @Inject 
 	    JobContext jobCtx; 
@@ -108,40 +95,15 @@ public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 		
 		@Override
 		public void beforeWrite(List<Object> items) throws Exception {
-			/*if (items != null && ("WRITE").equals(applistenerTest)){
-				logger.finer("In beforeWrite()");
-				beforecounter++;
-				logger.fine("AJM: beforecounter = " + beforecounter);
-
-			}*/
 		}
 		
 		@Override
 		public void afterWrite(List<Object> items) throws Exception {
-			/*
-			logger.fine("AJM: applistenerTest = " + applistenerTest);
-			
-			if (items != null && ("WRITE").equals(applistenerTest)){
-				logger.finer("In afterWrite()");
-				
-				aftercounter++;
-				logger.fine("AJM: aftercounter = " + aftercounter);
-
-				if (beforecounter == aftercounter) {
-					jobCtx.setExitStatus(GOOD_EXIT_STATUS);
-				} else
-					jobCtx.setExitStatus(BAD_EXIT_STATUS);
-			}*/
 		}
 		
 	    @Override
 	    public void onWriteError(List<Object> items, Exception e) throws Exception {
-	        //logger.finer("In onWriteError()" + e);
-	        String stritems = "";
-	        int size = items.size();
-	        for(int i = 0; i<size; i++)
-	        	stritems.concat(new Integer(i).toString());
-	        jobCtx.setExitStatus(stritems);
+	    	jobCtx.setExitStatus(items.toString());
 	    }
 		
 	}
