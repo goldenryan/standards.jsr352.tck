@@ -16,40 +16,24 @@
  */
 package com.ibm.jbatch.tck.tests.jslxml;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Properties;
-
-import javax.batch.api.AbstractBatchlet;
-import javax.batch.api.partition.AbstractPartitionAnalyzer;
-import javax.batch.api.partition.PartitionCollector;
-import javax.batch.operations.JobOperator;
-import javax.batch.runtime.BatchRuntime;
-import javax.batch.runtime.BatchStatus;
-import javax.batch.runtime.JobExecution;
-import javax.batch.runtime.JobInstance;
-import javax.batch.runtime.StepExecution;
-import javax.batch.runtime.context.JobContext;
-import javax.batch.runtime.context.StepContext;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import com.ibm.jbatch.tck.artifacts.specialized.ParallelContextPropagationArtifacts;
-import com.ibm.jbatch.tck.utils.JobOperatorBridge;
-
 import static com.ibm.jbatch.tck.utils.AssertionUtils.assertWithMessage;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Properties;
+
+import javax.batch.runtime.BatchStatus;
+import javax.batch.runtime.JobExecution;
+
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.testng.Reporter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.ibm.jbatch.tck.utils.JobOperatorBridge;
+
 
 public class ItemReadWriteProcessOnErrorTest {
 	private static JobOperatorBridge jobOp = null;
-	private static int sleepTime = 20000;
 	
 	@BeforeMethod
 	@BeforeClass
@@ -57,97 +41,58 @@ public class ItemReadWriteProcessOnErrorTest {
 		jobOp = new JobOperatorBridge();
 	}
 
-
-
     /*
      * @testName: testOnWriteErrorItems
      * 
-     * @assertion:
+     * @assertion: Ensure Job has failed and on Error ensure the writeListener returns the right items
      * 
-     * @test_Strategy: 
+     * @test_Strategy: Intentionally fail writer and ensure the onError method returns the correct string
+     * 					of items
      */
 	@Test
 	@org.junit.Test
 	public void testOnWriteErrorItems() throws Exception {
+		String GOOD_EXIT_STATUS = new String("[4, 3, 2, 1, 0]");
+		
+	    Reporter.log("Create job parameters for execution<p>");
         Properties jobParams = new Properties();
 		
-		JobExecution je = jobOp.startJobAndWaitForResult("partitionCtxPropagation", null);
-		Thread.sleep(sleepTime);
-		
-		// Check job COMPLETED since some validation is crammed into the execution.
-		assertEquals("Test successful completion", "COMPLETED", je.getBatchStatus().toString());
-
-		// Get the correct exec id and instance id
-		long theExecId = je.getExecutionId();
-		long theInstanceId = jobOp.getJobInstance(theExecId).getInstanceId();
-
-
-        Reporter.log("Create job parameters for execution #2:<p>");
-        jobParams = new Properties();
-        Reporter.log("process.fail.immediate=true<p>");
-        
-        jobParams.put("process.fail.immediate", "true");
-
-
-        Reporter.log("Invoke startJobAndWaitForResult for execution #2<p>");
-        JobExecution execution2 = jobOp.startJobAndWaitForResult("chunkReadWriteProcessTest", jobParams);
-        Reporter.log("execution #2 JobExecution getBatchStatus()=" + je.getBatchStatus() + "<p>");
-        Reporter.log("execution #2 JobExecution getExitStatus()=" + je.getExitStatus() + "<p>");
-        /*assertWithMessage("Testing execution #2 for the PROCESS LISTENER", BatchStatus.FAILED, execution2.getBatchStatus());
-        assertWithMessage("Testing execution #2 for the PROCESS LISTENER", "123456789",
-                execution2.getExitStatus());*/
-		
-	    Reporter.log("Create job parameters for execution #3:<p>");
-	    jobParams = new Properties();
 	    Reporter.log("write.fail.immediate=true<p>");
-	    
 	    jobParams.put("write.fail.immediate", "true");
+
+	    Reporter.log("Invoke startJobAndWaitForResult for execution<p>");
+	    JobExecution je = jobOp.startJobAndWaitForResult("chunkReadWriteProcessTest", jobParams);
 	
-	
-	    Reporter.log("Invoke startJobAndWaitForResult for execution #3<p>");
-	    JobExecution execution3 = jobOp.startJobAndWaitForResult("chunkReadWriteProcessTest", jobParams);
-	    Reporter.log("execution #3 JobExecution getBatchStatus()=" + je.getBatchStatus() + "<p>");
-	    Reporter.log("execution #3 JobExecution getExitStatus()=" + je.getExitStatus() + "<p>");
-	    assertWithMessage("Testing execution #3 for the WRITE LISTENER", BatchStatus.FAILED, execution3.getBatchStatus());
-	    assertWithMessage("Testing execution #3 for the WRITE LISTENER", "[5, 4, 3, 2, 1]",
-	            execution3.getExitStatus());
+	    Reporter.log("JobExecution getBatchStatus()=" + je.getBatchStatus() + "<p>");
+	    Reporter.log("JobExecution getExitStatus()=" + je.getExitStatus() + "<p>");
+	    assertWithMessage("Testing execution for the WRITE LISTENER", BatchStatus.FAILED, je.getBatchStatus());
+	    assertWithMessage("Testing execution for the WRITE LISTENER", GOOD_EXIT_STATUS, je.getExitStatus());
 	}
 
     /*
-     * @testName: testOnProccessErrorItems
+     * @testName: testOnProcessErrorItems
      * 
-     * @assertion:
+     * @assertion: Ensure Job has failed and on Error ensure the procesListener returns the right items
      * 
-     * @test_Strategy: 
+     * @test_Strategy: Intentionally fail processor and ensure the onError method returns the correct string
+     * 					of items
      */
-	/*@Test
+	@Test
 	@org.junit.Test
-	public void testOnProccessErrorItems() throws Exception {
+	public void testOnProcessErrorItems() throws Exception {
+		String GOOD_EXIT_STATUS = new String("4");
+        Reporter.log("Create job parameters for execution:<p>");
         Properties jobParams = new Properties();
-		
-		JobExecution je = jobOp.startJobAndWaitForResult("partitionCtxPropagation", null);
-		Thread.sleep(sleepTime);
-		
-		// Check job COMPLETED since some validation is crammed into the execution.
-		assertEquals("Test successful completion", "COMPLETED", je.getBatchStatus().toString());
 
-		// Get the correct exec id and instance id
-		long theExecId = je.getExecutionId();
-		long theInstanceId = jobOp.getJobInstance(theExecId).getInstanceId();
-		
-	    Reporter.log("Create job parameters for execution #3:<p>");
-	    jobParams = new Properties();
-	    Reporter.log("write.fail.immediate=true<p>");
-	    
-	    jobParams.put("write.fail.immediate", "true");
-	
-	
-	    Reporter.log("Invoke startJobAndWaitForResult for execution #3<p>");
-	    JobExecution execution3 = jobOp.startJobAndWaitForResult("testListenersOnError", jobParams);
-	    Reporter.log("execution #3 JobExecution getBatchStatus()=" + je.getBatchStatus() + "<p>");
-	    Reporter.log("execution #3 JobExecution getExitStatus()=" + je.getExitStatus() + "<p>");
-	    assertWithMessage("Testing execution #3 for the WRITE LISTENER", BatchStatus.FAILED, execution3.getBatchStatus());
-	    assertWithMessage("Testing execution #3 for the WRITE LISTENER", "123456789",
-	            execution3.getExitStatus());
-	}*/
+        Reporter.log("process.fail.immediate=true<p>");
+        jobParams.put("process.fail.immediate", "true");
+
+        Reporter.log("Invoke startJobAndWaitForResult for execution<p>");
+        JobExecution je = jobOp.startJobAndWaitForResult("chunkReadWriteProcessTest", jobParams);
+
+        Reporter.log("JobExecution getBatchStatus()=" + je.getBatchStatus() + "<p>");
+        Reporter.log("JobExecution getExitStatus()=" + je.getExitStatus() + "<p>");
+        assertWithMessage("Testing execution for the PROCESS LISTENER", BatchStatus.FAILED, je.getBatchStatus());
+        assertWithMessage("Testing execution for the PROCESS LISTENER", GOOD_EXIT_STATUS, je.getExitStatus());
+	}
 }

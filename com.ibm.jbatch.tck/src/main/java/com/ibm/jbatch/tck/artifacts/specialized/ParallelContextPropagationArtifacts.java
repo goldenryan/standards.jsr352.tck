@@ -16,29 +16,16 @@
  */
 package com.ibm.jbatch.tck.artifacts.specialized;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.Serializable;
-import java.util.List;
 
 import javax.batch.api.AbstractBatchlet;
 import javax.batch.api.partition.AbstractPartitionAnalyzer;
 import javax.batch.api.partition.PartitionCollector;
-import javax.batch.operations.JobOperator;
-import javax.batch.runtime.BatchRuntime;
-import javax.batch.runtime.JobExecution;
-import javax.batch.runtime.JobInstance;
-import javax.batch.runtime.StepExecution;
 import javax.batch.runtime.context.JobContext;
 import javax.batch.runtime.context.StepContext;
 import javax.inject.Inject;
-import javax.inject.Named;
-
-import com.ibm.jbatch.tck.utils.JobOperatorBridge;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 public class ParallelContextPropagationArtifacts {
 

@@ -18,8 +18,8 @@
 <job id="chunkReadWriteProcessTest" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
 	<step id="step1">
 		<listeners>
-		 	<!-- <listener ref="OnErrorItemProcessListener">
-			</listener> -->
+		 	<listener ref="OnErrorItemProcessListener">
+			</listener>
 			<listener ref="OnErrorItemWriteListener">
 			</listener>
 		</listeners>
@@ -29,11 +29,11 @@
 				<property name="read.fail.immediate" value="#{jobParameters['read.fail.immediate']}" />
    	         </properties>
 		 </reader>
-		 <!-- <processor ref="listenerOnErrorProcessor">
+		 <processor ref="listenerOnErrorProcessorReturnObj">
 		     <properties>
 				<property name="process.fail.immediate" value="#{jobParameters['process.fail.immediate']}"/>
 		    </properties>
-		 </processor> -->
+		 </processor>
 		 <writer ref="listenerOnErrorWriter">
 		     <properties>
 				<property name="write.fail.immediate" value="#{jobParameters['write.fail.immediate']}" />
