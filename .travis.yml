@@ -1,0 +1,13 @@
+language: java
+
+install: 
+ - git clone https://github.com/WASdev/standards.jsr352.jbatch
+ - cd standards.jsr352.jbatch
+ - mvn clean install
+ - cd ..
+ - rm -rf standards.jsr352.jbatch
+script: mvn  install
+
+branches:
+  only:
+  - master

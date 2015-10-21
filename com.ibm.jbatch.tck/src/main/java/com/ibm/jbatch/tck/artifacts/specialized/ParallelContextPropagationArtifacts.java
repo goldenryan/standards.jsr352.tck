@@ -16,23 +16,53 @@
  */
 package com.ibm.jbatch.tck.artifacts.specialized;
 
+<<<<<<< HEAD
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
+=======
+import java.io.Serializable;
+import java.util.List;
+>>>>>>> origin/master
 
 import javax.batch.api.AbstractBatchlet;
 import javax.batch.api.partition.AbstractPartitionAnalyzer;
 import javax.batch.api.partition.PartitionCollector;
+<<<<<<< HEAD
 import javax.batch.runtime.context.JobContext;
 import javax.batch.runtime.context.StepContext;
 import javax.inject.Inject;
+=======
+import javax.batch.operations.JobOperator;
+import javax.batch.runtime.BatchRuntime;
+import javax.batch.runtime.JobExecution;
+import javax.batch.runtime.JobInstance;
+import javax.batch.runtime.StepExecution;
+import javax.batch.runtime.context.JobContext;
+import javax.batch.runtime.context.StepContext;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.ibm.jbatch.tck.utils.JobOperatorBridge;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+>>>>>>> origin/master
 
 public class ParallelContextPropagationArtifacts {
 
 public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 	
+<<<<<<< HEAD
 	@javax.inject.Named("PCPCheckJobBatchlet")
 	public static class PCPCheckJobBatchlet extends AbstractBatchlet {
+=======
+	@javax.inject.Named("PCPSplitFlowBatchlet")
+	public static class PCPSplitFlowBatchlet extends AbstractBatchlet {
+>>>>>>> origin/master
 
 		@Inject JobContext jobCtx;
 		@Inject StepContext stepCtx;
@@ -72,8 +102,13 @@ public static String GOOD_EXIT_STATUS = "VERY GOOD INVOCATION";
 		}
 	}
 
+<<<<<<< HEAD
 	@javax.inject.Named("PCPProcessBatchlet")
 	public static class PCPProcessBatchlet extends AbstractBatchlet {
+=======
+	@javax.inject.Named("PCPPartitionBatchlet")
+	public static class PCPPartitionBatchlet extends AbstractBatchlet {
+>>>>>>> origin/master
 
 		@Inject JobContext jobCtx; @Inject StepContext stepCtx;
 
