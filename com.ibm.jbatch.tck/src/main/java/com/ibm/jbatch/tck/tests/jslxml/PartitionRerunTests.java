@@ -94,9 +94,8 @@ public class PartitionRerunTests {
 		JobExecution je = jobOp.startJobAndWaitForResult("partitionRerun", origParams);
 		long execId = je.getExecutionId();
 		
-		checkStepExecId(execId, je);
+		checkStepExecId(je, "step1", 2);
 		assertEquals("Didn't fail as expected", BatchStatus.FAILED, je.getBatchStatus());
-		assertEquals("Two partitions were supposed to pass", 2, je.getExitStatus().split(",").length);
 		
 		//Now run again, since we failed in one partition on the first run this run should have only that one partition rerun
 		Properties restartParams = new Properties();
@@ -105,9 +104,8 @@ public class PartitionRerunTests {
 		JobExecution restartje = jobOp.restartJobAndWaitForResult(execId, restartParams);
 		long restartExecId = restartje.getExecutionId();
 
-		checkStepExecId(restartExecId, restartje);
+		checkStepExecId(restartje, "step1", 1);
 		assertEquals("Didn't fail as expected", BatchStatus.FAILED, jobOp.getJobExecution(restartExecId).getBatchStatus());
-		assertEquals("One partition was supposed to run and pass", 1, restartje.getExitStatus().split(",").length);
 
 		//Now a third time where we rerun from a fail in step to and expect allow-start-if-complete='true' variable to take over
 		//since the failed partitions already reran.
@@ -117,18 +115,37 @@ public class PartitionRerunTests {
 		JobExecution restartje2 = jobOp.restartJobAndWaitForResult(restartExecId, restartParams2);
 		long restartExecId2 = restartje2.getExecutionId();
 
-		checkStepExecId(restartExecId2, restartje2);
 		assertEquals("Didn't complete successfully", BatchStatus.COMPLETED, jobOp.getJobExecution(restartExecId2).getBatchStatus());
-		assertEquals("Three partitions were supposed to run and pass", 3, restartje2.getExitStatus().split(",").length);
+		checkStepExecId(restartje2, "step1", 3);				
 	}
 	
-	public void checkStepExecId(long execId, JobExecution je){
-		List<StepExecution> stepExec = jobOp.getStepExecutions(execId);
-		long stepExecId = stepExec.get(0).getStepExecutionId();//The first one because the first step runs the partitons
+	/**
+	 * 
+	 * @param je  
+	 * @param stepName
+	 * @param numPartitionResults
+	 */
+	public void checkStepExecId(JobExecution je, String stepName, int numPartitionResults){
+		List<StepExecution> stepExecs = jobOp.getStepExecutions(je.getExecutionId());
+		
+		Long stepExecId = null;
+		for (StepExecution se : stepExecs) {
+			if (se.getStepName().equals(stepName)) {
+				stepExecId = se.getStepExecutionId();
+				break;
+			}
+		}
+		
+		if (stepExecId == null) {
+			throw new IllegalStateException("Didn't find step1 execution for job execution: " + je.getExecutionId());
+		}
+				
 		String[] retvals = je.getExitStatus().split(",");
+		assertEquals("Found different number of partitions completing for step1 for for job execution: " + je.getExecutionId(),
+				 numPartitionResults, retvals.length);
+		
 		for(int i=0;i<retvals.length;i++){
-			if(stepExecId != Long.parseLong(retvals[i]))
-				throw new RuntimeException("Did not return a number/numbers matching the stepExecId");
+			assertEquals("Did not return a number/numbers matching the stepExecId", stepExecId.longValue(), Long.parseLong(retvals[i]));
 		}
 	}
 

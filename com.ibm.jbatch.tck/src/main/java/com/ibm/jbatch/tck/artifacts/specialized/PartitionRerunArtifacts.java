@@ -89,9 +89,9 @@ public class PartitionRerunArtifacts {
 		}
 	}
 
-	//Simple batchlet that fails on the first run and completes on the second
-	@javax.inject.Named("DoNothingBatchlet")
-	public static class DoNothingBatchlet extends AbstractBatchlet {
+	//Simple batchlet that fails when forceFailure2 flag is set
+	@javax.inject.Named("PartitionRerunBatchlet")
+	public static class Batchlet extends AbstractBatchlet {
 		@Inject
 		@BatchProperty(name="force.failure2")
 		String forceFailure2;

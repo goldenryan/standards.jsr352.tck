@@ -104,7 +104,7 @@
     <ref id="parsingPartitionAnalyzer" class="com.ibm.jbatch.tck.artifacts.specialized.ParsingPartitionAnalyzer" />
     <ref id="PartitionRerunAnalyzer" class="com.ibm.jbatch.tck.artifacts.specialized.PartitionRerunArtifacts$Analyzer" />
     <ref id="PartitionRerunCollector" class="com.ibm.jbatch.tck.artifacts.specialized.PartitionRerunArtifacts$Collector" />
-    <ref id="DoNothingBatchlet" class="com.ibm.jbatch.tck.artifacts.specialized.PartitionRerunArtifacts$DoNothingBatchlet" />
+    <ref id="PartitionRerunBatchlet" class="com.ibm.jbatch.tck.artifacts.specialized.PartitionRerunArtifacts$Batchlet" />
     <ref id="PartitionRerunReader" class="com.ibm.jbatch.tck.artifacts.specialized.PartitionRerunArtifacts$Reader" />
     <ref id="PartitionRerunWriter" class="com.ibm.jbatch.tck.artifacts.specialized.PartitionRerunArtifacts$Writer" />
     <ref id="skipProcessor" class="com.ibm.jbatch.tck.artifacts.specialized.SkipProcessor" />
