@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 import com.ibm.jbatch.tck.artifacts.chunkartifacts.InventoryReader;
 import com.ibm.jbatch.tck.utils.JobOperatorBridge;
 
-public class PartitionRerunTest {
+public class PartitionRerunTests {
 	private static final String CLASSNAME = InventoryReader.class.getName();
 	private final static Logger logger = Logger.getLogger(CLASSNAME);
 	static JobOperatorBridge jobOp = null;
