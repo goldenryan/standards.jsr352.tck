@@ -17,6 +17,7 @@
 package com.ibm.jbatch.tck.tests.jslxml;
 
 import static org.junit.Assert.assertEquals;
+import static com.ibm.jbatch.tck.utils.AssertionUtils.assertWithMessage;
 
 import java.util.List;
 import java.util.Properties;
@@ -95,7 +96,7 @@ public class PartitionRerunTests {
 		long execId = je.getExecutionId();
 		
 		checkStepExecId(je, "step1", 2);
-		assertEquals("Didn't fail as expected", BatchStatus.FAILED, je.getBatchStatus());
+		assertWithMessage("Didn't fail as expected", BatchStatus.FAILED, je.getBatchStatus());
 		
 		//Now run again, since we failed in one partition on the first run this run should have only that one partition rerun
 		Properties restartParams = new Properties();
@@ -105,7 +106,7 @@ public class PartitionRerunTests {
 		long restartExecId = restartje.getExecutionId();
 
 		checkStepExecId(restartje, "step1", 1);
-		assertEquals("Didn't fail as expected", BatchStatus.FAILED, jobOp.getJobExecution(restartExecId).getBatchStatus());
+		assertWithMessage("Didn't fail as expected", BatchStatus.FAILED, jobOp.getJobExecution(restartExecId).getBatchStatus());
 
 		//Now a third time where we rerun from a fail in step to and expect allow-start-if-complete='true' variable to take over
 		//since the failed partitions already reran.
@@ -115,7 +116,7 @@ public class PartitionRerunTests {
 		JobExecution restartje2 = jobOp.restartJobAndWaitForResult(restartExecId, restartParams2);
 		long restartExecId2 = restartje2.getExecutionId();
 
-		assertEquals("Didn't complete successfully", BatchStatus.COMPLETED, jobOp.getJobExecution(restartExecId2).getBatchStatus());
+		assertWithMessage("Didn't complete successfully", BatchStatus.COMPLETED, jobOp.getJobExecution(restartExecId2).getBatchStatus());
 		checkStepExecId(restartje2, "step1", 3);				
 	}
 	
