@@ -31,3 +31,7 @@ Running singular tests:
 
 	-for running out of tck.exec change tck.exec/testng.suite.xml
 	-for running out of standards.jsr352.tck dir change com.ibm.jbatch.tck/testng/jsr352-tck-impl-SE-suite.xml
+	
+Assertions:
+
+	-Cannot use junit assertions, must use batch assertions (com.ibm.jbatch.tck.utils.AssertionUtils.assertWithMessage(String,Object,Object)
