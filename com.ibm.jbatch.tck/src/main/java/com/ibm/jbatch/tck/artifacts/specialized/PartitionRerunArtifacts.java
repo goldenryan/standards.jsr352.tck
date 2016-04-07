@@ -33,7 +33,7 @@ import javax.inject.Inject;
 public class PartitionRerunArtifacts {
 	
 	//Reader that force fails when needed
-	@javax.inject.Named("SuperBasicReader")
+	@javax.inject.Named("PartitionRerunReader")
 	public static class Reader extends AbstractItemReader {
 
 		@Inject
@@ -56,7 +56,7 @@ public class PartitionRerunArtifacts {
 	}
 
 	//dummy writer
-	@javax.inject.Named("SuperBasicWriter")
+	@javax.inject.Named("PartitionRerunWriter")
 	public static class Writer extends AbstractItemWriter {
 		@Override
 		public void writeItems(List<Object> items) {
@@ -64,7 +64,7 @@ public class PartitionRerunArtifacts {
 	}
 
 	//Collects all execution ids from partitions
-	@javax.inject.Named("SuperBasicCollector")
+	@javax.inject.Named("PartitionRerunCollector")
 	public static class Collector implements PartitionCollector {
 		//@Inject JobContext jobCtx;
 		@Inject StepContext stepCtx;
@@ -76,7 +76,7 @@ public class PartitionRerunArtifacts {
 	}
 
 	//Checks ids to make sure they are the same in the same run of the job
-	@javax.inject.Named("SuperBasicAnalyzer")
+	@javax.inject.Named("PartitionRerunAnalyzer")
 	public static class Analyzer extends AbstractPartitionAnalyzer {
 		@Inject JobContext jobCtx;
 
@@ -100,8 +100,6 @@ public class PartitionRerunArtifacts {
 		
 		@Override
 		public String process() {
-			//If Step One did not complete correctly (with different step exec ids) then skip
-			//this if statement, complete the batchlet and ultimately fail the test
 			if (Boolean.parseBoolean(forceFailure2) == true) {
 				throw new RuntimeException("Forcing failure for step2: " + stepCtx.getStepName());
 			}

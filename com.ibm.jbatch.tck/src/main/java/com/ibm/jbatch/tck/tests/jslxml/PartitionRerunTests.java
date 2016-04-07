@@ -18,11 +18,13 @@ package com.ibm.jbatch.tck.tests.jslxml;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
+import javax.batch.runtime.StepExecution;
 
 import org.junit.Before;
 import org.testng.Reporter;
@@ -91,9 +93,10 @@ public class PartitionRerunTests {
 
 		JobExecution je = jobOp.startJobAndWaitForResult("partitionRerun", origParams);
 		long execId = je.getExecutionId();
+		
+		checkStepExecId(execId, je);
 		assertEquals("Didn't fail as expected", BatchStatus.FAILED, je.getBatchStatus());
-		logger.fine("FINAL JOB EXIT STATUS: " + je.getExitStatus());
-		assertEquals("Two partitions were supposed to pass, but more or less did", 2, je.getExitStatus().split(",").length);
+		assertEquals("Two partitions were supposed to pass", 2, je.getExitStatus().split(",").length);
 		
 		//Now run again, since we failed in one partition on the first run this run should have only that one partition rerun
 		Properties restartParams = new Properties();
@@ -101,9 +104,10 @@ public class PartitionRerunTests {
 		restartParams.setProperty("force.failure2", "true");
 		JobExecution restartje = jobOp.restartJobAndWaitForResult(execId, restartParams);
 		long restartExecId = restartje.getExecutionId();
+
+		checkStepExecId(restartExecId, restartje);
 		assertEquals("Didn't fail as expected", BatchStatus.FAILED, jobOp.getJobExecution(restartExecId).getBatchStatus());
-		logger.fine("FINAL JOB EXIT STATUS: " + restartje.getExitStatus());
-		assertEquals("One partition was supposed to run, but more or less did", 1, restartje.getExitStatus().split(",").length);
+		assertEquals("One partition was supposed to run and pass", 1, restartje.getExitStatus().split(",").length);
 
 		//Now a third time where we rerun from a fail in step to and expect allow-start-if-complete='true' variable to take over
 		//since the failed partitions already reran.
@@ -112,9 +116,20 @@ public class PartitionRerunTests {
 		restartParams2.setProperty("force.failure2", "false");
 		JobExecution restartje2 = jobOp.restartJobAndWaitForResult(restartExecId, restartParams2);
 		long restartExecId2 = restartje2.getExecutionId();
+
+		checkStepExecId(restartExecId2, restartje2);
 		assertEquals("Didn't complete successfully", BatchStatus.COMPLETED, jobOp.getJobExecution(restartExecId2).getBatchStatus());
-		logger.fine("FINAL JOB EXIT STATUS: " + restartje2.getExitStatus());
-		assertEquals("Three partitions were supposed to run, but more or less did", 3, restartje2.getExitStatus().split(",").length);
+		assertEquals("Three partitions were supposed to run and pass", 3, restartje2.getExitStatus().split(",").length);
+	}
+	
+	public void checkStepExecId(long execId, JobExecution je){
+		List<StepExecution> stepExec = jobOp.getStepExecutions(execId);
+		long stepExecId = stepExec.get(0).getStepExecutionId();//The first one because the first step runs the partitons
+		String[] retvals = je.getExitStatus().split(",");
+		for(int i=0;i<retvals.length;i++){
+			if(stepExecId != Long.parseLong(retvals[i]))
+				throw new RuntimeException("Did not return a number/numbers matching the stepExecId");
+		}
 	}
 
 }
